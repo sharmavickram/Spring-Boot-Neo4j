@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-neo4j-deployment
+spec:
+  selector:
+    matchLabels:
+      app: springboot-neo4j
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: springboot-neo4j
+    spec:
+      containers:
+        - name: springboot-neo4j
+          image: gcr.io/maximal-muse-251207/vikram-spring-neo4j:v1
+          ports:
+            - containerPort: 8093
+          env:   # Setting Enviornmental Variables
+            - name: NEO4J_HOST   # Setting Database host address from configMap
+              value : 34.131.30.23
+
+            - name: NEO4J_PORT   # Setting Database host address from configMap
+              value : "7474"
+
+            - name: NEO4J_USERNAME  # Setting Database username from Secret
+              value : neo4j
+
+            - name: NEO4J_PASSWORD # Setting Database password from Secret
+              value : neo4j123
+
+
+---
+
+apiVersion: v1 # Kubernetes API version
+kind: Service # Kubernetes resource kind we are creating
+metadata: # Metadata of the resource kind we are creating
+  name: springboot-neo4j-svc
+spec:
+  selector:
+    app: springboot-neo4j
+  ports:
+    - protocol: "TCP"
+      port: 8093 # The port that the service is running on in the cluster
+      targetPort: 8093 # The port exposed by the service
+  type: LoadBalancer # type of the service.
+
